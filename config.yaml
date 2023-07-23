@@ -1,0 +1,10 @@
+path: C:/Users/navne/Desktop/fruit_train/train_zip/train
+train: images/train1
+val:  images/train1
+
+#Classes
+names:
+  0: apple
+  1: banana
+  2: orange
+  

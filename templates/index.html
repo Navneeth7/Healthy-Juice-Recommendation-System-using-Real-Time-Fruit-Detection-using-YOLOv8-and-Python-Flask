@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fruit Detection</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Fruit Detection</h1>
+    <!-- Add the img tag for displaying the live camera feed -->
+    <img id="video-feed" src="{{url_for('video_feed')}}" width="640" height="480">
+    
+    <div id="detected_fruits"></div>
+
+    <!-- <button onclick="startFeed()">Start Feed</button> -->
+    
+    <button onclick="stopFeed()">Stop Feed</button>
+
+    <!-- <button onclick="video_feed()">video feed</button> -->
+
+    <script>
+        const detectedFruitsElement = document.getElementById("detected_fruits");
+        const videoFeedElement = document.getElementById("video-feed");
+        let eventSource = null;
+
+        function video_feed() {
+            if (eventSource === null) {
+                eventSource = new EventSource('/video_feed');
+                eventSource.onmessage = function (event) {
+                    const data = event.data.split("--detected_fruits--");
+                    const frameData = data[0];
+                    const detectedFruitsData = data[1];
+                    videoFeedElement.src = "data:image/jpeg;base64," + frameData;
+                    const detectedFruits = detectedFruitsData.split(',');
+                    const fruitsLinks = detectedFruits.map(fruit => `<a href="/fruit_pages/${fruit}.html" target="_blank">${fruit}</a>`);
+                    detectedFruitsElement.innerHTML = fruitsLinks.join(", ");
+                };
+
+                eventSource.onerror = function (error) {
+                    console.error('EventSource failed:', error);
+                    stopFeed();
+                };
+            }
+        }
+
+        function stopFeed() {
+            if (eventSource !== null) {
+                eventSource.close();
+                eventSource = null;
+                videoFeedElement.src = "";
+                detectedFruitsElement.innerHTML = "";
+            }
+
+          
+        }
+    </script>
+</body>
+</html>
